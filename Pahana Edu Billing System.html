@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pahana Edu Billing System</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font for better aesthetics */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+
+<div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-200">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Pahana Edu Billing System</h1>
+
+    <div id="message-container" class="hidden bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative mb-4" role="alert">
+        <span id="message-text" class="block sm:inline"></span>
+    </div>
+
+    <!-- Home Page View -->
+    <div id="home-view" class="text-center">
+        <p class="text-gray-600 mb-6">Welcome to Pahana Edu's customer billing management system.</p>
+        <button id="user-login-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75">
+            User Login
+        </button>
+        <p class="mt-4 text-sm text-gray-500">
+            For administrative access, please contact support.
+        </p>
+    </div>
+
+    <!-- Auth Page View (Login/Register) -->
+    <div id="auth-view" class="hidden space-y-6">
+        <h2 id="auth-title" class="text-2xl font-bold text-center text-gray-700">User Login</h2>
+        <form id="auth-form" class="space-y-4">
+            <div>
+                <label for="mobileNumber" class="block text-sm font-medium text-gray-700">Mobile Number (Username)</label>
+                <input
+                        type="text"
+                        id="mobileNumber"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        required
+                />
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                        type="password"
+                        id="password"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        required
+                />
+            </div>
+
+            <!-- Registration Fields (initially hidden) -->
+            <div id="registration-fields" class="hidden space-y-4">
+                <div>
+                    <label for="accountNumber" class="block text-sm font-medium text-gray-700">Account Number</label>
+                    <input
+                            type="text"
+                            id="accountNumber"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                </div>
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input
+                            type="text"
+                            id="name"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                </div>
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                    <input
+                            type="text"
+                            id="address"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                </div>
+                <div>
+                    <label for="telephoneNumber" class="block text-sm font-medium text-gray-700">Telephone Number</label>
+                    <input
+                            type="text"
+                            id="telephoneNumber"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                </div>
+                <div>
+                    <label for="unitsConsumed" class="block text-sm font-medium text-gray-700">Units Consumed</label>
+                    <input
+                            type="number"
+                            id="unitsConsumed"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                </div>
+            </div>
+
+            <button
+                    type="submit"
+                    id="auth-submit-btn"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75"
+            >
+                Login
+            </button>
+        </form>
+
+        <div class="text-center">
+            <button
+                    id="toggle-auth-mode-btn"
+                    class="text-indigo-600 hover:text-indigo-800 text-sm font-medium transition duration-300 ease-in-out"
+            >
+                Need an account? Register here.
+            </button>
+            <button
+                    id="back-to-home-btn"
+                    class="block mt-4 w-full text-gray-500 hover:text-gray-700 text-sm font-medium transition duration-300 ease-in-out"
+            >
+                Back to Home
+            </button>
+        </div>
+    </div>
+
+    <!-- User Dashboard View -->
+    <div id="dashboard-view" class="hidden text-center space-y-6">
+        <h2 class="text-2xl font-bold text-gray-700">Welcome, <span id="dashboard-user-name">User</span>!</h2>
+        <p class="text-gray-600">Your Mobile Number: <span id="dashboard-mobile-number"></span></p>
+        <p class="text-gray-600">This is your personalized dashboard. Here you would see your billing details and other account information.</p>
+        <!-- Placeholder for billing details -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <h3 class="font-semibold text-blue-800 mb-2">Billing Information (Mock Data)</h3>
+            <p class="text-sm text-blue-700">Account Number: XXX-XXX-XXX</p>
+            <p class="text-sm text-blue-700">Last Bill: $50.00 (Due: 2025-07-31)</p>
+            <p class="text-sm text-blue-700">Units Consumed (Current Cycle): 120</p>
+        </div>
+        <button
+                id="logout-btn"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75"
+        >
+            Logout
+        </button>
+    </div>
+</div>
+
+<script>
+    // DOM Elements
+    const homeView = document.getElementById('home-view');
+    const authView = document.getElementById('auth-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    const userLoginBtn = document.getElementById('user-login-btn');
+    const authTitle = document.getElementById('auth-title');
+    const authForm = document.getElementById('auth-form');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const toggleAuthModeBtn = document.getElementById('toggle-auth-mode-btn');
+    const backToHomeBtn = document.getElementById('back-to-home-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const registrationFields = document.getElementById('registration-fields');
+    const messageContainer = document.getElementById('message-container');
+    const messageText = document.getElementById('message-text');
+
+    // Input Fields
+    const mobileNumberInput = document.getElementById('mobileNumber');
+    const passwordInput = document.getElementById('password');
+    const accountNumberInput = document.getElementById('accountNumber');
+    const nameInput = document.getElementById('name');
+    const addressInput = document.getElementById('address');
+    const telephoneNumberInput = document.getElementById('telephoneNumber');
+    const unitsConsumedInput = document.getElementById('unitsConsumed');
+
+    // Dashboard Elements
+    const dashboardUserName = document.getElementById('dashboard-user-name');
+    const dashboardMobileNumber = document.getElementById('dashboard-mobile-number');
+
+    let isLoginMode = true; // State to track if currently in login or register mode
+    let loggedInUser = null; // Stores logged in user data
+
+    // Function to display messages
+    function showMessage(msg, type = 'info') {
+        messageText.textContent = msg;
+        messageContainer.classList.remove('hidden', 'bg-blue-100', 'bg-red-100', 'border-blue-400', 'border-red-400', 'text-blue-700', 'text-red-700');
+        if (type === 'error') {
+            messageContainer.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
+        } else {
+            messageContainer.classList.add('bg-blue-100', 'border-blue-400', 'text-blue-700');
+        }
+        messageContainer.classList.remove('hidden');
+    }
+
+    // Function to hide messages
+    function hideMessage() {
+        messageContainer.classList.add('hidden');
+        messageText.textContent = '';
+    }
+
+    // Function to switch views
+    function setView(viewName) {
+        homeView.classList.add('hidden');
+        authView.classList.add('hidden');
+        dashboardView.classList.add('hidden');
+        hideMessage(); // Clear messages when changing views
+
+        if (viewName === 'home') {
+            homeView.classList.remove('hidden');
+        } else if (viewName === 'auth') {
+            authView.classList.remove('hidden');
+            // Reset form fields when entering auth view
+            mobileNumberInput.value = '';
+            passwordInput.value = '';
+            accountNumberInput.value = '';
+            nameInput.value = '';
+            addressInput.value = '';
+            telephoneNumberInput.value = '';
+            unitsConsumedInput.value = '';
+            // Ensure correct mode is shown
+            if (isLoginMode) {
+                showLoginMode();
+            } else {
+                showRegisterMode();
+            }
+        } else if (viewName === 'dashboard') {
+            dashboardView.classList.remove('hidden');
+            if (loggedInUser) {
+                dashboardUserName.textContent = loggedInUser.name;
+                dashboardMobileNumber.textContent = loggedInUser.mobileNumber;
+            }
+        }
+    }
+
+    // Function to show login mode UI
+    function showLoginMode() {
+        isLoginMode = true;
+        authTitle.textContent = 'User Login';
+        authSubmitBtn.textContent = 'Login';
+        toggleAuthModeBtn.textContent = 'Need an account? Register here.';
+        registrationFields.classList.add('hidden');
+        // Make registration fields not required when hidden
+        accountNumberInput.removeAttribute('required');
+        nameInput.removeAttribute('required');
+        addressInput.removeAttribute('required');
+        telephoneNumberInput.removeAttribute('required');
+        unitsConsumedInput.removeAttribute('required');
+    }
+
+    // Function to show register mode UI
+    function showRegisterMode() {
+        isLoginMode = false;
+        authTitle.textContent = 'Register New Customer';
+        authSubmitBtn.textContent = 'Register';
+        toggleAuthModeBtn.textContent = 'Already have an account? Login here.';
+        registrationFields.classList.remove('hidden');
+        // Make registration fields required when visible
+        accountNumberInput.setAttribute('required', 'required');
+        nameInput.setAttribute('required', 'required');
+        addressInput.setAttribute('required', 'required');
+        telephoneNumberInput.setAttribute('required', 'required');
+        unitsConsumedInput.setAttribute('required', 'required');
+    }
+
+    // Simulate user login (replace with actual fetch to Spring Boot backend)
+    async function handleLogin(mobileNumber, password) {
+        hideMessage();
+        // In a real app, this would be a fetch POST request to your Spring Boot backend
+        // Example: const response = await fetch('http://localhost:8080/api/customers/login', { ... });
+        // For demonstration, we'll simulate a successful login for '1234567890'/'password'
+        if (mobileNumber === '1234567890' && password === 'password') {
+            loggedInUser = { mobileNumber: mobileNumber, name: 'Demo User' }; // Simulate user data
+            localStorage.setItem('pahanaUser', JSON.stringify(loggedInUser));
+            showMessage('Login successful!', 'info');
+            setTimeout(() => setView('dashboard'), 1000); // Delay for message to be seen
+        } else {
+            showMessage('Invalid mobile number or password.', 'error');
+        }
+    }
+
+    // Simulate user registration (replace with actual fetch to Spring Boot backend)
+    async function handleRegister(customerDetails) {
+        hideMessage();
+        // In a real app, this would be a fetch POST request to your Spring Boot backend
+        // Example: const response = await fetch('http://localhost:8080/api/customers/register', { ... });
+        // For demonstration, we'll just log the details and simulate success
+        console.log('Registering new customer:', customerDetails);
+        // Simulate a successful registration
+        showMessage('Registration successful! Please log in.', 'info');
+        setTimeout(() => {
+            showLoginMode(); // After registration, direct to login page
+            setView('auth');
+        }, 1000); // Delay for message to be seen
+    }
+
+    // Function to handle logout
+    function handleLogout() {
+        loggedInUser = null;
+        localStorage.removeItem('pahanaUser');
+        showMessage('You have been logged out.', 'info');
+        setTimeout(() => setView('home'), 1000); // Delay for message to be seen
+    }
+
+    // Event Listeners
+    userLoginBtn.addEventListener('click', () => setView('auth'));
+    toggleAuthModeBtn.addEventListener('click', () => {
+        if (isLoginMode) {
+            showRegisterMode();
+        } else {
+            showLoginMode();
+        }
+    });
+    backToHomeBtn.addEventListener('click', () => setView('home'));
+    logoutBtn.addEventListener('click', handleLogout);
+
+    authForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const mobileNumber = mobileNumberInput.value;
+        const password = passwordInput.value;
+
+        if (isLoginMode) {
+            handleLogin(mobileNumber, password);
+        } else {
+            const accountNumber = accountNumberInput.value;
+            const name = nameInput.value;
+            const address = addressInput.value;
+            const telephoneNumber = telephoneNumberInput.value;
+            const unitsConsumed = parseInt(unitsConsumedInput.value);
+
+            // Basic validation for registration fields
+            if (!accountNumber || !name || !address || !telephoneNumber || isNaN(unitsConsumed)) {
+                showMessage('Please fill in all registration fields correctly.', 'error');
+                return;
+            }
+
+            const customerDetails = {
+                accountNumber,
+                name,
+                address,
+                telephoneNumber,
+                unitsConsumed,
+                mobileNumber,
+                password,
+            };
+            handleRegister(customerDetails);
+        }
+    });
+
+    // Initial check for logged-in user on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const storedUser = localStorage.getItem('pahanaUser');
+        if (storedUser) {
+            loggedInUser = JSON.parse(storedUser);
+            setView('dashboard');
+        } else {
+            setView('home');
+        }
+    });
+</script>
+</body>
+</html>
