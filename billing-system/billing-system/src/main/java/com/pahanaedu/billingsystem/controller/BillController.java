@@ -1,22 +1,15 @@
 // File: src/main/java/com/pahanaedu/billingsystem/controller/BillController.java
 package com.pahanaedu.billingsystem.controller;
 
-import java.util.List;
-
+import com.pahanaedu.billingsystem.model.Bill;
+import com.pahanaedu.billingsystem.service.BillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.pahanaedu.billingsystem.model.Bill;
-import com.pahanaedu.billingsystem.service.BillService;
+import java.util.List;
+import java.util.Optional; // Added for Optional in getBillById
 
 @RestController // Marks this as a REST controller
 @RequestMapping("/api/bills") // Base path for all bill-related endpoints
@@ -52,7 +45,7 @@ public class BillController {
     }
 
     // CREATE a new bill: POST http://localhost:8080/api/bills
-    // Body (JSON): { "customerId": "someCustomerId", "amount": 123.45, "unitsConsumed": 200, "meterReading": 12345.67 }
+    // Body (JSON): { "customerId": "someCustomerId", "billDate": "YYYY-MM-DD", "dueDate": "YYYY-MM-DD", "amount": 123.45, "status": "UNPAID", "unitsConsumed": 200, "meterReading": 12345.67 }
     @PostMapping
     public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
         try {
@@ -60,7 +53,7 @@ public class BillController {
             return new ResponseEntity<>(newBill, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             // Handle cases where customer not found or other business rule violations
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(null); // Return 400 Bad Request with empty body
         }
     }
 
