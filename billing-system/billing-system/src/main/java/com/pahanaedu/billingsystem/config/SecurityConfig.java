@@ -26,22 +26,29 @@ public class SecurityConfig {
                         // Customer Endpoints
                         .requestMatchers(HttpMethod.POST, "/api/customers").permitAll() // Register
                         .requestMatchers(HttpMethod.POST, "/api/customers/login").permitAll() // Login
-                        // Note: Other /api/customers GET/PUT/DELETE will be protected by .anyRequest().authenticated()
 
                         // Bill Endpoints
                         .requestMatchers(HttpMethod.POST, "/api/bills").permitAll() // Create Bill
                         .requestMatchers(HttpMethod.GET, "/api/bills").permitAll() // Get All Bills
                         .requestMatchers(HttpMethod.GET, "/api/bills/**").permitAll() // Get Bill by ID, by customer, by status
 
-                        // Product Endpoints (NEWLY ADDED)
-                        .requestMatchers(HttpMethod.POST, "/api/products").permitAll() // Create Product
-                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll() // Get All Products
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll() // Get Product by ID or Name
+                        // Book Endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/books").permitAll() // Create Book
+                        .requestMatchers(HttpMethod.GET, "/api/books").permitAll() // Get All Books
+                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll() // Get Book by ID, ISBN, Author, Genre
+                        .requestMatchers(HttpMethod.PUT, "/api/books/*").permitAll() // Allow general PUT /api/books/{id} for updates
+
+                        // NEWLY ADDED: Allow DELETE requests to delete a book by ID
+                        .requestMatchers(HttpMethod.DELETE, "/api/books/*").permitAll() // Allow DELETE /api/books/{id}
+
+                        .requestMatchers(HttpMethod.PUT, "/api/books/*/decreaseStock/*").permitAll() // Allow stock decrease
+                        .requestMatchers(HttpMethod.PUT, "/api/books/*/increaseStock/*").permitAll() // Allow stock increase
 
                         // Allow access to the default Spring Boot error page
                         .requestMatchers("/error").permitAll()
 
                         // --- Secured Endpoints (Require authentication) ---
+                        // For all other requests that haven't been explicitly permitted above, require authentication.
                         .anyRequest().authenticated()
                 );
 
