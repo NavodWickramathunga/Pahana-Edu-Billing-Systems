@@ -37,18 +37,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/books").permitAll() // Get All Books
                         .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll() // Get Book by ID, ISBN, Author, Genre
                         .requestMatchers(HttpMethod.PUT, "/api/books/*").permitAll() // Allow general PUT /api/books/{id} for updates
-
-                        // NEWLY ADDED: Allow DELETE requests to delete a book by ID
                         .requestMatchers(HttpMethod.DELETE, "/api/books/*").permitAll() // Allow DELETE /api/books/{id}
-
                         .requestMatchers(HttpMethod.PUT, "/api/books/*/decreaseStock/*").permitAll() // Allow stock decrease
                         .requestMatchers(HttpMethod.PUT, "/api/books/*/increaseStock/*").permitAll() // Allow stock increase
+
+                        // Payment Endpoints (NEWLY ADDED)
+                        .requestMatchers(HttpMethod.POST, "/api/payments").permitAll() // Create Payment
+                        .requestMatchers(HttpMethod.GET, "/api/payments").permitAll() // Get All Payments
+                        .requestMatchers(HttpMethod.GET, "/api/payments/**").permitAll() // Get Payment by ID, by customer, by bill
+                        .requestMatchers(HttpMethod.PUT, "/api/payments/*").permitAll() // Allow general PUT /api/payments/{id} for updates
+                        .requestMatchers(HttpMethod.DELETE, "/api/payments/*").permitAll() // Allow DELETE /api/payments/{id}
 
                         // Allow access to the default Spring Boot error page
                         .requestMatchers("/error").permitAll()
 
                         // --- Secured Endpoints (Require authentication) ---
-                        // For all other requests that haven't been explicitly permitted above, require authentication.
                         .anyRequest().authenticated()
                 );
 
