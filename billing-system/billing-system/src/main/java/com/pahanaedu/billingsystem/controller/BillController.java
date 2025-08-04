@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/bills")
@@ -16,36 +17,63 @@ public class BillController {
     @Autowired
     private BillService billService;
 
-    // Existing endpoint to get all bills
+    /**
+     * Retrieves a list of all bills.
+     * Handles: GET http://localhost:8080/api/bills
+     */
     @GetMapping
     public List<Bill> getAllBills() {
         return billService.getAllBills();
     }
 
-    // New endpoint to calculate and generate a bill
-    // Handles: POST http://localhost:8080/api/bills/calculate
-    @PostMapping("/calculate")
-    public ResponseEntity<Bill> calculateBill(@RequestBody BillCalculationRequest request) {
-        try {
-            Bill newBill = billService.calculateAndCreateBill(request.getCustomerId(), request.getUnitsConsumed(), request.getItemId());
-            return new ResponseEntity<>(newBill, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            // Corrected to remove ambiguity: use status() and build()
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    /**
+     * Retrieves a single bill by its ID.
+     * Handles: GET http://localhost:8080/api/bills/{id}
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<Bill> getBillById(@PathVariable String id) {
+        Optional<Bill> bill = billService.getBillById(id);
+        return bill.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // Inner class for the bill calculation request body
-    static class BillCalculationRequest {
-        private String customerId;
-        private int unitsConsumed;
-        private String itemId;
+    /**
+     * Retrieves all bills for a specific customer ID.
+     * Handles: GET http://localhost:8080/api/bills/customer/{customerId}
+     */
+    @GetMapping("/customer/{customerId}")
+    public List<Bill> getBillsByCustomerId(@PathVariable String customerId) {
+        return billService.getBillsByCustomerId(customerId);
+    }
 
-        public String getCustomerId() { return customerId; }
-        public void setCustomerId(String customerId) { this.customerId = customerId; }
-        public int getUnitsConsumed() { return unitsConsumed; }
-        public void setUnitsConsumed(int unitsConsumed) { this.unitsConsumed = unitsConsumed; }
-        public String getItemId() { return itemId; }
-        public void setItemId(String itemId) { this.itemId = itemId; }
+    /**
+     * Creates a new bill.
+     * Handles: POST http://localhost:8080/api/bills
+     */
+    @PostMapping
+    public ResponseEntity<Bill> createBill(@RequestBody Bill bill) {
+        Bill newBill = billService.createBill(bill);
+        return new ResponseEntity<>(newBill, HttpStatus.CREATED);
+    }
+
+    /**
+     * Updates an existing bill.
+     * Handles: PUT http://localhost:8080/api/bills/{id}
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Bill> updateBill(@PathVariable String id, @RequestBody Bill updatedBill) {
+        Optional<Bill> bill = billService.updateBill(id, updatedBill);
+        return bill.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * Deletes a bill by its ID.
+     * Handles: DELETE http://localhost:8080/api/bills/{id}
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBill(@PathVariable String id) {
+        billService.deleteBill(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
