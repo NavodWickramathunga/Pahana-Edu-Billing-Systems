@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pahana Book Shop</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Heroicons for the cart icon -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.279.0/lucide.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .page.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- Header Navigation -->
+<header class="bg-white shadow-lg sticky top-0 z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Logo/Title -->
+            <a href="#" class="flex-shrink-0 flex items-center space-x-2" onclick="showPage('home')">
+                <!-- Custom SVG for a book icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-600">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20h-4a2 2 0 0 0-2-2H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                </svg>
+                <span class="text-xl font-bold text-gray-900">Pahana Book Shop</span>
+            </a>
+
+            <!-- Navigation Links and Buttons -->
+            <div class="flex items-center space-x-4">
+                <button id="cart-button" class="relative p-2 rounded-full text-gray-400 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none transition-colors duration-200" onclick="showPage('cart')">
+                    <!-- Shopping Cart Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+                </button>
+                <button id="auth-button" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" onclick="showPage('login')">
+                    Login / Register
+                </button>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Main Content Area -->
+<main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Home Page (Book List) -->
+    <section id="home-page" class="page">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Browse Our Books</h1>
+        <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Book items will be dynamically inserted here by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Cart Page -->
+    <section id="cart-page" class="page hidden">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Your Shopping Cart</h1>
+        <div id="cart-items" class="bg-white rounded-lg shadow-md p-6">
+            <!-- Cart items will be dynamically inserted here -->
+        </div>
+        <div id="cart-summary" class="mt-6 flex justify-between items-center bg-white rounded-lg shadow-md p-6">
+            <p class="text-xl font-semibold text-gray-900">Total: <span id="cart-total" class="font-bold">Rs. 0.00</span></p>
+            <button id="checkout-button" class="px-6 py-3 text-lg font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                Proceed to Checkout
+            </button>
+        </div>
+    </section>
+
+    <!-- Login/Register Page -->
+    <section id="login-page" class="page hidden">
+        <div class="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-900 text-center mb-6">Login or Register</h1>
+
+            <!-- Registration Form -->
+            <div id="registration-form-section">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Register for an Account</h2>
+                <form id="registration-form" class="space-y-4">
+                    <div>
+                        <label for="reg-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" id="reg-name" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="reg-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" id="reg-email" name="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="reg-password" name="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700">
+                        Create Account
+                    </button>
+                </form>
+                <p class="mt-4 text-sm text-gray-600 text-center">Already have an account? <a href="#" id="show-login-btn" class="text-indigo-600 hover:text-indigo-800">Log in</a></p>
+            </div>
+
+            <!-- Login Form (Initially hidden) -->
+            <div id="login-form-section" class="hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Log in to Your Account</h2>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" id="login-email" name="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="login-password" name="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700">
+                        Log In
+                    </button>
+                </form>
+                <p class="mt-4 text-sm text-gray-600 text-center">Don't have an account? <a href="#" id="show-register-btn" class="text-indigo-600 hover:text-indigo-800">Register</a></p>
+            </div>
+
+            <!-- Status Message Area -->
+            <div id="auth-status-message" class="mt-4 text-center text-sm"></div>
+        </div>
+    </section>
+
+    <!-- Checkout Page (Guest or Logged-in) -->
+    <section id="checkout-page" class="page hidden">
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-900 text-center mb-6">Checkout</h1>
+            <div id="checkout-summary" class="border-b pb-4 mb-4">
+                <h2 class="text-xl font-semibold mb-2">Order Summary</h2>
+                <div id="checkout-items" class="space-y-2">
+                    <!-- Items will be displayed here -->
+                </div>
+                <div class="mt-4 text-right text-lg font-bold">
+                    Total: <span id="checkout-total">Rs. 0.00</span>
+                </div>
+            </div>
+
+            <form id="checkout-form" class="space-y-4">
+                <div id="user-info-section">
+                    <!-- User info (guest form or logged-in info) will be dynamically inserted here -->
+                </div>
+
+                <button type="submit" class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700">
+                    Complete Purchase
+                </button>
+            </form>
+
+            <div id="purchase-status-message" class="mt-4 text-center text-sm"></div>
+        </div>
+    </section>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl p-8 max-w-sm w-full text-center">
+            <h3 class="text-2xl font-bold text-green-600 mb-4">Purchase Successful!</h3>
+            <p id="confirmation-message" class="text-gray-700 mb-6"></p>
+            <button onclick="showPage('home')" class="bg-indigo-600 text-white font-medium py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Mock Data ---
+        const mockBooks = [
+            { id: 1, title: "The Martian", author: "Andy Weir", price: 1250, cover: "https://placehold.co/200x300/a855f7/ffffff?text=The+Martian" },
+            { id: 2, title: "Dune", author: "Frank Herbert", price: 1800, cover: "https://placehold.co/200x300/3b82f6/ffffff?text=Dune" },
+            { id: 3, title: "Project Hail Mary", author: "Andy Weir", price: 1500, cover: "https://placehold.co/200x300/22c55e/ffffff?text=Project+Hail+Mary" },
+            { id: 4, title: "Neuromancer", author: "William Gibson", price: 1100, cover: "https://placehold.co/200x300/f59e0b/ffffff?text=Neuromancer" },
+            { id: 5, title: "Foundation", author: "Isaac Asimov", price: 1650, cover: "https://placehold.co/200x300/ef4444/ffffff?text=Foundation" },
+            { id: 6, title: "The Hitchhiker's Guide to the Galaxy", author: "Douglas Adams", price: 1000, cover: "https://placehold.co/200x300/ec4899/ffffff?text=Hitchhiker's+Guide" }
+        ];
+
+        // --- State Management ---
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let user = JSON.parse(localStorage.getItem('user')) || null;
+        let currentPage = 'home';
+
+        const pages = {
+            'home': document.getElementById('home-page'),
+            'cart': document.getElementById('cart-page'),
+            'login': document.getElementById('login-page'),
+            'checkout': document.getElementById('checkout-page')
+        };
+
+        const bookGridEl = document.getElementById('book-grid');
+        const cartItemsEl = document.getElementById('cart-items');
+        const cartTotalEl = document.getElementById('cart-total');
+        const cartCountEl = document.getElementById('cart-count');
+        const authButtonEl = document.getElementById('auth-button');
+        const checkoutItemsEl = document.getElementById('checkout-items');
+        const checkoutTotalEl = document.getElementById('checkout-total');
+        const userInfoSectionEl = document.getElementById('user-info-section');
+        const loginFormEl = document.getElementById('login-form-section');
+        const registerFormEl = document.getElementById('registration-form-section');
+        const confirmationModalEl = document.getElementById('confirmation-modal');
+        const confirmationMessageEl = document.getElementById('confirmation-message');
+
+        // --- UI Functions ---
+        const updateCartCount = () => {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountEl.textContent = totalItems;
+            cartCountEl.classList.toggle('hidden', totalItems === 0);
+        };
+
+        const updateAuthButton = () => {
+            if (user) {
+                authButtonEl.textContent = `Welcome, ${user.name}`;
+                authButtonEl.disabled = true;
+                authButtonEl.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                authButtonEl.classList.add('bg-gray-400', 'cursor-not-allowed');
+            } else {
+                authButtonEl.textContent = 'Login / Register';
+                authButtonEl.disabled = false;
+                authButtonEl.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                authButtonEl.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            }
+        };
+
+        const renderBooks = () => {
+            bookGridEl.innerHTML = '';
+            mockBooks.forEach(book => {
+                const bookEl = document.createElement('div');
+                bookEl.className = 'bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105';
+                bookEl.innerHTML = `
+                        <img src="${book.cover}" alt="${book.title} cover" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-gray-900">${book.title}</h3>
+                            <p class="text-sm text-gray-500">${book.author}</p>
+                            <p class="text-lg font-bold text-indigo-600 mt-2">Rs. ${book.price.toFixed(2)}</p>
+                            <button class="mt-4 w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200 add-to-cart-btn" data-id="${book.id}">
+                                Add to Cart
+                            </button>
+                        </div>
+                    `;
+                bookGridEl.appendChild(bookEl);
+            });
+        };
+
+        const renderCart = () => {
+            cartItemsEl.innerHTML = '';
+            let total = 0;
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = '<p class="text-gray-500 text-center">Your cart is empty.</p>';
+                document.getElementById('checkout-button').disabled = true;
+                document.getElementById('checkout-button').classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                document.getElementById('checkout-button').disabled = false;
+                document.getElementById('checkout-button').classList.remove('opacity-50', 'cursor-not-allowed');
+                cart.forEach(item => {
+                    const book = mockBooks.find(b => b.id === item.id);
+                    if (book) {
+                        const itemPrice = book.price * item.quantity;
+                        total += itemPrice;
+                        const cartItemEl = document.createElement('div');
+                        cartItemEl.className = 'flex items-center justify-between border-b pb-4 mb-4 last:border-b-0 last:mb-0';
+                        cartItemEl.innerHTML = `
+                                <div class="flex items-center space-x-4">
+                                    <img src="${book.cover}" alt="${book.title}" class="w-16 h-20 object-cover rounded-md shadow-sm">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">${book.title}</h3>
+                                        <p class="text-sm text-gray-500">Qty: ${item.quantity} x Rs. ${book.price.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <p class="font-bold text-indigo-600">Rs. ${itemPrice.toFixed(2)}</p>
+                                    <button class="remove-from-cart-btn text-red-500 hover:text-red-700" data-id="${book.id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M18 6L6 18"></path><path d="M6 6L18 18"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            `;
+                        cartItemsEl.appendChild(cartItemEl);
+                    }
+                });
+            }
+            cartTotalEl.textContent = `Rs. ${total.toFixed(2)}`;
+        };
+
+        const renderCheckout = () => {
+            checkoutItemsEl.innerHTML = '';
+            let total = 0;
+            if (cart.length === 0) {
+                checkoutItemsEl.innerHTML = '<p class="text-gray-500 text-center">Your cart is empty. Please add items to checkout.</p>';
+                document.getElementById('checkout-form').classList.add('hidden');
+                return;
+            }
+            document.getElementById('checkout-form').classList.remove('hidden');
+            cart.forEach(item => {
+                const book = mockBooks.find(b => b.id === item.id);
+                if (book) {
+                    const itemPrice = book.price * item.quantity;
+                    total += itemPrice;
+                    const checkoutItemEl = document.createElement('div');
+                    checkoutItemEl.className = 'flex justify-between items-center';
+                    checkoutItemEl.innerHTML = `
+                            <p class="text-gray-700">${book.title} (x${item.quantity})</p>
+                            <p class="font-bold text-gray-900">Rs. ${itemPrice.toFixed(2)}</p>
+                        `;
+                    checkoutItemsEl.appendChild(checkoutItemEl);
+                }
+            });
+            checkoutTotalEl.textContent = `Rs. ${total.toFixed(2)}`;
+
+            // Render user info section
+            userInfoSectionEl.innerHTML = '';
+            if (user) {
+                userInfoSectionEl.innerHTML = `
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Customer Information</h2>
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <p class="font-medium text-gray-900">${user.name}</p>
+                            <p class="text-sm text-gray-600">${user.email}</p>
+                        </div>
+                    `;
+            } else {
+                userInfoSectionEl.innerHTML = `
+                        <h2 class="text-xl font-semibold text-gray-800 mb-2">Guest Information</h2>
+                        <p class="text-sm text-gray-600 mb-4">You are checking out as a guest. You can register for an account on the login page.</p>
+                        <form id="guest-checkout-form" class="space-y-4">
+                            <div>
+                                <label for="guest-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                                <input type="text" id="guest-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            </div>
+                            <div>
+                                <label for="guest-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                                <input type="email" id="guest-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            </div>
+                        </form>
+                    `;
+            }
+        };
+
+        // --- Core Logic Functions ---
+        const showPage = (pageName) => {
+            currentPage = pageName;
+            Object.values(pages).forEach(page => page.classList.add('hidden'));
+            pages[pageName].classList.remove('hidden');
+
+            // Special rendering for specific pages
+            if (pageName === 'home') {
+                renderBooks();
+            } else if (pageName === 'cart') {
+                renderCart();
+            } else if (pageName === 'checkout') {
+                renderCheckout();
+            }
+        };
+
+        const addToCart = (bookId) => {
+            const item = cart.find(i => i.id === bookId);
+            if (item) {
+                item.quantity++;
+            } else {
+                cart.push({ id: bookId, quantity: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+        };
+
+        const removeFromCart = (bookId) => {
+            cart = cart.filter(item => item.id !== bookId);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            renderCart();
+        };
+
+        // --- Event Listeners ---
+        document.getElementById('book-grid').addEventListener('click', (e) => {
+            if (e.target.classList.contains('add-to-cart-btn')) {
+                const bookId = parseInt(e.target.dataset.id);
+                addToCart(bookId);
+            }
+        });
+
+        document.getElementById('cart-items').addEventListener('click', (e) => {
+            if (e.target.closest('.remove-from-cart-btn')) {
+                const bookId = parseInt(e.target.closest('.remove-from-cart-btn').dataset.id);
+                removeFromCart(bookId);
+            }
+        });
+
+        document.getElementById('checkout-button').addEventListener('click', () => {
+            showPage('checkout');
+        });
+
+        // Registration & Login Form logic (for this mock, it's client-side only)
+        document.getElementById('registration-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            // Mock registration process
+            user = { name, email };
+            localStorage.setItem('user', JSON.stringify(user));
+
+            document.getElementById('auth-status-message').className = 'mt-4 text-center text-sm text-green-600';
+            document.getElementById('auth-status-message').textContent = `Registration successful! Welcome, ${user.name}.`;
+
+            updateAuthButton();
+            showPage('home');
+        });
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Mock login process
+            // In a real app, you would validate credentials with a backend
+            user = { name: 'Test User', email: email };
+            localStorage.setItem('user', JSON.stringify(user));
+
+            document.getElementById('auth-status-message').className = 'mt-4 text-center text-sm text-green-600';
+            document.getElementById('auth-status-message').textContent = `Login successful! Welcome, ${user.name}.`;
+
+            updateAuthButton();
+            showPage('home');
+        });
+
+        // Toggle between login and registration forms
+        document.getElementById('show-login-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            registerFormEl.classList.add('hidden');
+            loginFormEl.classList.remove('hidden');
+        });
+
+        document.getElementById('show-register-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            loginFormEl.classList.add('hidden');
+            registerFormEl.classList.remove('hidden');
+        });
+
+        // Handle the final purchase
+        document.getElementById('checkout-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const purchaseStatusEl = document.getElementById('purchase-status-message');
+
+            if (cart.length === 0) {
+                purchaseStatusEl.textContent = 'Your cart is empty!';
+                purchaseStatusEl.className = 'mt-4 text-center text-sm text-red-600';
+                return;
+            }
+
+            // In a real app, this is where you would send the order to the backend
+
+            // Clear the cart after a successful purchase
+            cart = [];
+            localStorage.removeItem('cart');
+
+            // Show confirmation modal
+            confirmationModalEl.classList.remove('hidden');
+            let message = "Your order has been placed successfully!";
+            if (user) {
+                message += ` Thank you for your purchase, ${user.name}.`;
+            } else {
+                const guestName = document.getElementById('guest-name').value;
+                if(guestName) {
+                    message += ` Thank you for your purchase, ${guestName}.`;
+                }
+            }
+            confirmationMessageEl.textContent = message;
+            updateCartCount();
+        });
+
+        // Initial setup
+        showPage('home');
+        updateCartCount();
+        updateAuthButton();
+    });
+
+    // This function is for the modal button click
+    const showPage = (pageName) => {
+        document.getElementById('confirmation-modal').classList.add('hidden');
+        const pages = {
+            'home': document.getElementById('home-page'),
+            'cart': document.getElementById('cart-page'),
+            'login': document.getElementById('login-page'),
+            'checkout': document.getElementById('checkout-page')
+        };
+
+        Object.values(pages).forEach(page => page.classList.add('hidden'));
+        pages[pageName].classList.remove('hidden');
+
+        if (pageName === 'home') {
+            document.getElementById('book-grid').innerHTML = '';
+            const mockBooks = [
+                { id: 1, title: "The Martian", author: "Andy Weir", price: 1250, cover: "https://placehold.co/200x300/a855f7/ffffff?text=The+Martian" },
+                { id: 2, title: "Dune", author: "Frank Herbert", price: 1800, cover: "https://placehold.co/200x300/3b82f6/ffffff?text=Dune" },
+                { id: 3, title: "Project Hail Mary", author: "Andy Weir", price: 1500, cover: "https://placehold.co/200x300/22c55e/ffffff?text=Project+Hail+Mary" },
+                { id: 4, title: "Neuromancer", author: "William Gibson", price: 1100, cover: "https://placehold.co/200x300/f59e0b/ffffff?text=Neuromancer" },
+                { id: 5, title: "Foundation", author: "Isaac Asimov", price: 1650, cover: "https://placehold.co/200x300/ef4444/ffffff?text=Foundation" },
+                { id: 6, title: "The Hitchhiker's Guide to the Galaxy", author: "Douglas Adams", price: 1000, cover: "https://placehold.co/200x300/ec4899/ffffff?text=Hitchhiker's+Guide" }
+            ];
+            mockBooks.forEach(book => {
+                const bookEl = document.createElement('div');
+                bookEl.className = 'bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-200 hover:scale-105';
+                bookEl.innerHTML = `
+                        <img src="${book.cover}" alt="${book.title} cover" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-gray-900">${book.title}</h3>
+                            <p class="text-sm text-gray-500">${book.author}</p>
+                            <p class="text-lg font-bold text-indigo-600 mt-2">Rs. ${book.price.toFixed(2)}</p>
+                            <button class="mt-4 w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-colors duration-200 add-to-cart-btn" data-id="${book.id}">
+                                Add to Cart
+                            </button>
+                        </div>
+                    `;
+                document.getElementById('book-grid').appendChild(bookEl);
+            });
+        }
+    };
+</script>
+</body>
+</html>
