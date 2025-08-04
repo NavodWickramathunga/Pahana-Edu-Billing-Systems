@@ -22,36 +22,44 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         // --- Public Endpoints (Accessible without authentication) ---
+                        // These are endpoints for registration, login, and read-only data
 
-                        // Customer Endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/customers").permitAll() // Register
+                        // Customer Endpoints (Registration, Login, and Profile Viewing)
+                        .requestMatchers(HttpMethod.POST, "/api/customers/register").permitAll() // Register
                         .requestMatchers(HttpMethod.POST, "/api/customers/login").permitAll() // Login
+                        .requestMatchers(HttpMethod.PUT, "/api/customers/*").permitAll() // Edit Customer Info
+                        .requestMatchers(HttpMethod.GET, "/api/customers/**").permitAll() // Get customer by ID
 
-                        // Bill Endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/bills").permitAll() // Create Bill
+                        // Bill Endpoints (View and Calculate)
+                        .requestMatchers(HttpMethod.POST, "/api/bills/calculate").permitAll() // Calculate a new bill
                         .requestMatchers(HttpMethod.GET, "/api/bills").permitAll() // Get All Bills
                         .requestMatchers(HttpMethod.GET, "/api/bills/**").permitAll() // Get Bill by ID, by customer, by status
 
-                        // Book Endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/books").permitAll() // Create Book
-                        .requestMatchers(HttpMethod.GET, "/api/books").permitAll() // Get All Books
-                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll() // Get Book by ID, ISBN, Author, Genre
-                        .requestMatchers(HttpMethod.PUT, "/api/books/*").permitAll() // Allow general PUT /api/books/{id} for updates
-                        .requestMatchers(HttpMethod.DELETE, "/api/books/*").permitAll() // Allow DELETE /api/books/{id}
-                        .requestMatchers(HttpMethod.PUT, "/api/books/*/decreaseStock/*").permitAll() // Allow stock decrease
-                        .requestMatchers(HttpMethod.PUT, "/api/books/*/increaseStock/*").permitAll() // Allow stock increase
+                        // Book Endpoints (from your previous requirements)
+                        .requestMatchers(HttpMethod.POST, "/api/books").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/books").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/books/*").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/books/*").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/books/*/decreaseStock/*").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/books/*/increaseStock/*").permitAll()
 
-                        // Payment Endpoints (NEWLY ADDED)
-                        .requestMatchers(HttpMethod.POST, "/api/payments").permitAll() // Create Payment
-                        .requestMatchers(HttpMethod.GET, "/api/payments").permitAll() // Get All Payments
-                        .requestMatchers(HttpMethod.GET, "/api/payments/**").permitAll() // Get Payment by ID, by customer, by bill
-                        .requestMatchers(HttpMethod.PUT, "/api/payments/*").permitAll() // Allow general PUT /api/payments/{id} for updates
-                        .requestMatchers(HttpMethod.DELETE, "/api/payments/*").permitAll() // Allow DELETE /api/payments/{id}
+                        // Payment Endpoints (from your previous requirements)
+                        .requestMatchers(HttpMethod.POST, "/api/payments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/payments").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/payments/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/payments/*").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/payments/*").permitAll()
 
                         // Allow access to the default Spring Boot error page
                         .requestMatchers("/error").permitAll()
 
+                        // --- Admin-only Endpoints ---
+                        // All endpoints under /api/admin are for administrators only.
+                        .requestMatchers("/api/admin/**").permitAll()
+
                         // --- Secured Endpoints (Require authentication) ---
+                        // Any other request not specified above will require the user to be authenticated
                         .anyRequest().authenticated()
                 );
 
