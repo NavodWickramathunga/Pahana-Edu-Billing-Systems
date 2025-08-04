@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PahanaEDU Billing System</title>
+    <!-- Use Tailwind CSS for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+<div class="max-w-7xl mx-auto bg-white rounded-lg shadow-xl p-8 space-y-8">
+    <!-- Header Section -->
+    <header class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900">PahanaEDU Billing System</h1>
+        <p class="text-gray-500 mt-2">A demonstration of the backend API functionality.</p>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Left Column: Customer List -->
+        <div class="md:col-span-1 bg-gray-50 p-6 rounded-lg shadow-inner">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">All Customers</h2>
+            <div id="customer-list" class="space-y-3">
+                <!-- Customer list will be populated here by JavaScript -->
+                <p class="text-gray-400 text-center py-4">Loading customers...</p>
+            </div>
+        </div>
+
+        <!-- Middle Column: Customer Profile and Bills -->
+        <div class="md:col-span-2 bg-white p-6 rounded-lg shadow">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Customer Profile</h2>
+            <div id="customer-profile-details" class="space-y-4">
+                <!-- Customer profile and bills will be displayed here -->
+                <p class="text-gray-400 text-center py-16">Select a customer from the list to view their profile.</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Bill Creation Modal (Initially hidden) -->
+<div id="bill-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl p-8 max-w-lg w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800">Create New Bill</h3>
+            <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <form id="create-bill-form" class="space-y-4">
+            <div>
+                <label for="bill-units-consumed" class="block text-sm font-medium text-gray-700">Units Consumed</label>
+                <input type="number" id="bill-units-consumed" name="unitsConsumed" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+            </div>
+            <div>
+                <label for="bill-item-id" class="block text-sm font-medium text-gray-700">Item ID</label>
+                <p class="text-xs text-gray-500 mb-1">Use a valid item ID from your database, e.g., '66a9a7a93a1f81498b58a183'</p>
+                <input type="text" id="bill-item-id" name="itemId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+            </div>
+            <input type="hidden" id="bill-customer-id">
+            <div class="flex justify-end pt-4">
+                <button type="submit" class="bg-indigo-600 text-white font-medium py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Create Bill</button>
+            </div>
+        </form>
+        <div id="bill-form-message" class="mt-4 text-center text-sm"></div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const customerListEl = document.getElementById('customer-list');
+        const profileDetailsEl = document.getElementById('customer-profile-details');
+        const billModalEl = document.getElementById('bill-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const createBillForm = document.getElementById('create-bill-form');
+        const billCustomerIdInput = document.getElementById('bill-customer-id');
+        const billFormMessageEl = document.getElementById('bill-form-message');
+
+        const API_BASE_URL = 'http://localhost:8080/api';
+        let customers = []; // Store customers globally for easy access
+
+        // Fetch all customers and populate the list
+        async function fetchCustomers() {
+            try {
+                customerListEl.innerHTML = '<p class="text-gray-400 text-center py-4">Loading customers...</p>';
+                const response = await fetch(`${API_BASE_URL}/customers`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                customers = await response.json();
+                renderCustomerList(customers);
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+                customerListEl.innerHTML = `<p class="text-red-500 text-center py-4">Failed to load customers. Is the backend running?</p>`;
+            }
+        }
+
+        // Render the list of customers in the left pane
+        function renderCustomerList(customerData) {
+            if (customerData.length === 0) {
+                customerListEl.innerHTML = '<p class="text-gray-400 text-center py-4">No customers found.</p>';
+                return;
+            }
+            customerListEl.innerHTML = ''; // Clear loading message
+            customerData.forEach(customer => {
+                const customerButton = document.createElement('button');
+                customerButton.className = 'w-full text-left p-3 rounded-md bg-white hover:bg-indigo-50 transition-colors duration-150 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500';
+                customerButton.innerHTML = `<p class="font-medium text-gray-900">${customer.name}</p><p class="text-sm text-gray-500">ID: ${customer.id}</p>`;
+                customerButton.addEventListener('click', () => {
+                    fetchCustomerProfile(customer.id);
+                });
+                customerListEl.appendChild(customerButton);
+            });
+        }
+
+        // Fetch a single customer's profile and bills
+        async function fetchCustomerProfile(customerId) {
+            try {
+                profileDetailsEl.innerHTML = '<p class="text-gray-400 text-center py-16">Loading profile...</p>';
+                const response = await fetch(`${API_BASE_URL}/customers/profile/${customerId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const profile = await response.json();
+                renderCustomerProfile(profile);
+            } catch (error) {
+                console.error('Error fetching customer profile:', error);
+                profileDetailsEl.innerHTML = `<p class="text-red-500 text-center py-16">Failed to load customer profile.</p>`;
+            }
+        }
+
+        // Render the customer profile and bills in the main pane
+        function renderCustomerProfile(profile) {
+            profileDetailsEl.innerHTML = ''; // Clear previous content
+            if (!profile.customer) {
+                profileDetailsEl.innerHTML = '<p class="text-red-500 text-center py-16">Customer not found.</p>';
+                return;
+            }
+
+            // Customer Details Section
+            profileDetailsEl.innerHTML += `
+                    <div class="border-b pb-4 mb-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">${profile.customer.name}</h3>
+                        <p class="text-gray-700"><span class="font-semibold">Account ID:</span> ${profile.customer.id}</p>
+                        <p class="text-gray-700"><span class="font-semibold">Address:</span> ${profile.customer.address}</p>
+                        <p class="text-gray-700"><span class="font-semibold">Mobile:</span> ${profile.customer.mobileNumber}</p>
+                        <p class="text-gray-700"><span class="font-semibold">Units Consumed:</span> ${profile.customer.unitsConsumed}</p>
+                    </div>
+                `;
+
+            // Add a button to create a new bill
+            const createBillButton = document.createElement('button');
+            createBillButton.className = 'bg-green-600 text-white font-medium py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500';
+            createBillButton.textContent = 'Create New Bill';
+            createBillButton.addEventListener('click', () => {
+                openBillModal(profile.customer.id);
+            });
+            profileDetailsEl.appendChild(createBillButton);
+
+
+            // Bills Section
+            profileDetailsEl.innerHTML += `
+                    <h3 class="text-xl font-bold text-gray-900 mt-6 mb-2">Billing History</h3>
+                    <div id="bill-history" class="space-y-4"></div>
+                `;
+
+            const billHistoryEl = document.getElementById('bill-history');
+            if (profile.bills && profile.bills.length > 0) {
+                profile.bills.forEach(bill => {
+                    const billEl = document.createElement('div');
+                    billEl.className = 'p-4 border border-gray-200 rounded-md bg-white shadow-sm';
+                    billEl.innerHTML = `
+                            <p class="text-lg font-semibold text-gray-900">Amount: Rs. ${bill.amount.toFixed(2)}</p>
+                            <p class="text-gray-600">Bill Date: ${bill.billDate}</p>
+                            <p class="text-gray-600">Due Date: ${bill.dueDate}</p>
+                            <p class="text-gray-600">Status: <span class="font-bold ${bill.status === 'PAID' ? 'text-green-600' : 'text-red-600'}">${bill.status}</span></p>
+                            <p class="text-gray-600">Units Consumed: ${bill.unitsConsumed}</p>
+                        `;
+                    billHistoryEl.appendChild(billEl);
+                });
+            } else {
+                billHistoryEl.innerHTML = '<p class="text-gray-400">No billing history found.</p>';
+            }
+        }
+
+        // Open the modal for bill creation
+        function openBillModal(customerId) {
+            billCustomerIdInput.value = customerId;
+            billFormMessageEl.textContent = '';
+            createBillForm.reset();
+            billModalEl.classList.remove('hidden');
+        }
+
+        // Close the modal
+        closeModalBtn.addEventListener('click', () => {
+            billModalEl.classList.add('hidden');
+        });
+
+        // Handle the form submission for bill creation
+        createBillForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            billFormMessageEl.textContent = 'Creating bill...';
+
+            const customerId = billCustomerIdInput.value;
+            const unitsConsumed = document.getElementById('bill-units-consumed').value;
+            const itemId = document.getElementById('bill-item-id').value;
+
+            const payload = {
+                customerId: customerId,
+                unitsConsumed: parseInt(unitsConsumed),
+                itemId: itemId
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/bills/calculate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 201) {
+                    billFormMessageEl.textContent = 'Bill created successfully!';
+                    billFormMessageEl.className = 'mt-4 text-center text-sm text-green-600';
+                    // Refresh the customer profile to show the new bill
+                    fetchCustomerProfile(customerId);
+                    setTimeout(() => billModalEl.classList.add('hidden'), 2000);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create bill');
+                }
+            } catch (error) {
+                console.error('Error creating bill:', error);
+                billFormMessageEl.textContent = `Error: ${error.message}`;
+                billFormMessageEl.className = 'mt-4 text-center text-sm text-red-600';
+            }
+        });
+
+        // Initial fetch of all customers
+        fetchCustomers();
+    });
+</script>
+</body>
+</html>
