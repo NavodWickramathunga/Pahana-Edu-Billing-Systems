@@ -18,6 +18,9 @@ public class CustomerService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // The BillService dependency has been removed to break the circular reference.
+    // The logic to get a customer's profile will be handled in the controller.
+
     /**
      * Registers a new customer after hashing the password.
      * Throws an exception if a customer with the same mobile number already exists.
@@ -83,12 +86,10 @@ public class CustomerService {
             existingCustomer.setName(updatedCustomer.getName());
             existingCustomer.setAddress(updatedCustomer.getAddress());
             existingCustomer.setTelephoneNumber(updatedCustomer.getTelephoneNumber());
-            existingCustomer.setMobileNumber(updatedCustomer.getMobileNumber()); // Update mobile number as well
+            existingCustomer.setMobileNumber(updatedCustomer.getMobileNumber());
             existingCustomer.setUnitsConsumed(updatedCustomer.getUnitsConsumed());
-            // For security, do not update the password here directly.
-            // A separate endpoint for password change is a better practice.
             return Optional.of(customerRepository.save(existingCustomer));
         }
-        return Optional.empty(); // Return empty if customer is not found
+        return Optional.empty();
     }
 }
